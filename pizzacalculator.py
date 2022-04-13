@@ -8,10 +8,11 @@ def receipt():
     formattedMedium = my_formatter.format(mediumVar.get()*medium)
     formattedSmall = my_formatter.format(smallVar.get()*small)
     total = smallVar.get()*small + mediumVar.get()*medium + largeVar.get()*large
+    formattedTotal = my_formatter.format(total)
 
     window.destroy()
     receiptWindow = tkinter.Tk()
-    bonLabel = tkinter.Label(receiptWindow, text=f"RECEIPT:\nSmall pizza's: €{formattedSmall}\nMedium pizza's: €{formattedMedium}\nLarge pizza's: €{formattedLarge}\nTotal:{total}", font=('Helvatical bold',10)).pack()
+    bonLabel = tkinter.Label(receiptWindow, text=f"RECEIPT:\nSmall pizza's: €{formattedSmall}\nMedium pizza's: €{formattedMedium}\nLarge pizza's: €{formattedLarge}\nTotal: €{formattedTotal}", font=('Helvatical bold',10)).pack()
 
 small = 3.99
 medium = 5.00
