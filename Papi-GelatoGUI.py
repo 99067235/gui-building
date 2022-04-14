@@ -1,29 +1,57 @@
-from email import message
 import tkinter as tk
 from tkinter import ttk
 import tkinter
 from tkinter import messagebox
-
+my_formatter = "{0:.2f}"
 window = tk.Tk()
+def bolletjesBesteld():
+    if answerSpin1.get() <= 3 and answerSpin1.get() != 0:
+        info1.set("Wilt u uw bestelling in een hoorntje of in een bakje?")
+        spin1.grid_forget()
+        radio1.grid()
+        radio2.grid()
+        radio1.configure(text="Hoorntje", value="H")
+        radio2.configure(text="Bakje", value="B")
+    elif answerSpin1.get() >3 and answerSpin1.get() <=8:
+        info1.set(f"Dan krijgt u {answerSpin1.get()} bolletjes in een bakje.")
+
+def litersBesteld():
+    if answerSpin2.get() != 0:
+        for d in range(answerSpin2.get()):
+            info1.set(f"Welke smaak wilt u voor liter {d}?")
+            radio1.configure(text="Aardbei", value="A")
+            radio2.configure(text="Chocolade", value="C")
+            radio3.configure(text="Vanille", value="V")
+            radio1.grid()
+            radio2.grid()
+            radio3.grid()
+        bonLabel = tkinter.Label(window, text=f"Bedankt en tot ziens!\n---------[Papi Gelato]---------\nLiter:  {answerSpin2.get()}X €9,80 = € {my_formatter.format(answerSpin2.get()*9.80)}")
+        bonLabel.grid()
 def aantal():
     radio1.grid_forget()
     radio2.grid_forget()
     if radioAnswer.get() == "P":
         info1.set("Hoeveel bolletjes wilt u bestellen?")
         spin1.grid()
+        bolletjesBesteld()
     elif radioAnswer.get() == "Z":
         info1.set("Hoeveel liter wilt u bestellen?")
         spin2.grid()
+        litersBesteld()
+        
     else:
         messagebox.showinfo("INFO", "Kies a.u.b. een optie.")
 
 def ParOfZakCheck():
-    global radio1, radio2
+    global radio1, radio2, radio3
     info1.set("Bent u particulier of zakelijk?")
     radio1 = ttk.Radiobutton(window, text="Particulier", variable=radioAnswer, value="P")
     radio1.grid()
     radio2 = ttk.Radiobutton(window, text="Zakelijk", variable=radioAnswer, value="Z")
     radio2.grid()
+    radio3 = ttk.Radiobutton(window, text="", variable=radioAnswer, value="")
+    radio3.grid()
+    radio3.grid_forget()
     startButton.config(text="Volgende",command=aantal)
     startButton.grid(column=0, row=4)
 info1 = tkinter.StringVar(value="Welkom bij Papi Gelato. Druk op de knop om uw bestelling te kiezen.")
