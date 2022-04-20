@@ -2,9 +2,15 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter
 from tkinter import messagebox
+lijstMetToppings = ["sr", "slagroom", "sp", "sprinkels", "cs", "caramelsaus"]
+bakje = 0
+hoorntje = 0
+aantalBolletjes = 0
+toppingKosten = 0.00
+aantalToppings = 0
 my_formatter = "{0:.2f}"
-window = tk.Tk()
 def bolletjesBesteld():
+    global soortVerpakking, bakje, hoorntje
     if answerSpin1.get() <= 3 and answerSpin1.get() != 0:
         info1.set("Wilt u uw bestelling in een hoorntje of in een bakje?")
         spin1.grid_forget()
@@ -12,33 +18,155 @@ def bolletjesBesteld():
         radio2.grid()
         radio1.configure(text="Hoorntje", value="H")
         radio2.configure(text="Bakje", value="B")
-    elif answerSpin1.get() >3 and answerSpin1.get() <=8:
+        startButton.wait_variable(radioAnswer)
+        if radioAnswer.get() == "H":
+            soortVerpakking = "H"
+            hoorntje += 1
+            litersOfBolletjesBesteld("bolletje")
+        elif radioAnswer.get() == "B":
+            soortVerpakking = "B"
+            bakje += 1
+            litersOfBolletjesBesteld("bolletje")
+    elif answerSpin1.get() >3:
+        soortVerpakking = "B"
+        bakje += 1
         info1.set(f"Dan krijgt u {answerSpin1.get()} bolletjes in een bakje.")
+        litersOfBolletjesBesteld("bolletje")
 
-def litersBesteld():
-    if answerSpin2.get() != 0:
-        for d in range(answerSpin2.get()):
-            info1.set(f"Welke smaak wilt u voor liter {d}?")
-            radio1.configure(text="Aardbei", value="A")
-            radio2.configure(text="Chocolade", value="C")
-            radio3.configure(text="Vanille", value="V")
-            radio1.grid()
-            radio2.grid()
-            radio3.grid()
-        bonLabel = tkinter.Label(window, text=f"Bedankt en tot ziens!\n---------[Papi Gelato]---------\nLiter:  {answerSpin2.get()}X €9,80 = € {my_formatter.format(answerSpin2.get()*9.80)}")
+def checkSmaak():
+    if radioAnswer.get() == "A":
+        pass
+    elif radioAnswer.get() == "C":
+        pass
+    elif radioAnswer.get() == "V":
+        pass
+    else:
+        messagebox.showinfo("INFO", "Kies aub een optie")
+        if soortPersoon == "P":
+            litersOfBolletjesBesteld("bolletje")
+        else:
+            litersOfBolletjesBesteld("liter")
+
+def bonZakelijk():
+        total = my_formatter.format(answerSpin2.get()*9.80)
+        btwZakelijk = my_formatter.format(round(float(total)) / 100 * 9)
+        bonLabel = tkinter.Label(window, text=f"""Bedankt en tot ziens!\n---------[Papi Gelato]---------
+Liter:  {answerSpin2.get()} X €9,80 = € {total}
+-------------------------------
+Totaal: {total}
+BTW (9%): € {btwZakelijk}""")
         bonLabel.grid()
+
+def topping():
+    global toppingKosten, radio4, aantalToppings
+    info1.set(value="Welke topping wilt u?")
+    radio1.configure(text="Slagroom", value="SR")
+    radio2.configure(text="Sprinkels", value="SP")
+    radio3.configure(text="Caramelsaus", value="CS")
+    radio4 = ttk.Radiobutton(window, text="G", variable=radioAnswer, value="G")
+    radio4.grid()
+    startButton.wait_variable(radioAnswer)
+    if radioAnswer.get() == "SR":
+        aantalToppings += 1
+        toppingKosten += 0.50
+    elif radioAnswer.get() == "SP":
+        aantalToppings += 1
+        toppingKosten += (0.30*int(aantalBolletjes))
+    elif radioAnswer.get() == "CS":
+        aantalToppings += 1
+        if soortVerpakking == "B":
+            toppingKosten += 0.90
+        elif soortVerpakking == "H":
+            toppingKosten += 0.60
+    elif radioAnswer.get() == "G":
+        pass
+
+def bonParticulier():
+    global bonLabel1, bonLabel2, bakjeLabel, hoorntjeLabel, toppingLabel,totalLabel
+    total = my_formatter.format(aantalBolletjes*0.95 + (aantalToppings * toppingKosten) + (hoorntje * 1.25) + (bakje * 0.75))
+    formattedToppings = my_formatter.format(aantalToppings * toppingKosten)
+
+    prijsBolletjes = my_formatter.format(aantalBolletjes*0.95)
+    bonLabel1 = tkinter.Label(window, text=f"Bedankt en tot ziens!\n---------[Papi Gelato]---------")
+    bonLabel1.grid()
+    if bakje > 0:
+        bakjeLabel = tkinter.Label(window, text=f"Bakje: {bakje} X 0.75 = {bakje * 0.75}")
+        bakjeLabel.grid()
+    if hoorntje > 0:
+        hoorntjeLabel = tkinter.Label(window, text=f"Hoorntje: {hoorntje} X 1.25 = {hoorntje * 1.25}")
+        hoorntjeLabel.grid()
+    bonLabel2 = tkinter.Label(window, text=f"""Bolletjes: {aantalBolletjes} X €0,95 = € {prijsBolletjes}""")
+    bonLabel2.grid()
+    if aantalToppings > 0:
+        toppingLabel = tkinter.Label(window, text=f"Topping: {aantalToppings} X {my_formatter.format(toppingKosten)} € {formattedToppings}") 
+        toppingLabel.grid()
+    totalLabel = tkinter.Label(window, text=f"""-------------------------------
+    Totaal: {total}""")
+    totalLabel.grid()
+        
+def destroy():
+    window.destroy()
+
+
+def litersOfBolletjesBesteld(soort):
+    global aantalBolletjes, nogEenKeer, bestelButton
+    if soortPersoon == "P":
+        soortSpin = answerSpin1
+    elif soortPersoon == "Z":
+        soortSpin = answerSpin2
+    aantalBolletjes += int(spin1.get())
+    if answerSpin2.get() != 0 or answerSpin1.get() != 0:
+        aantalLoops = 0
+        for aantalLoops in range(soortSpin.get()):
+            startButton.grid_forget()
+            spin2.grid_forget()
+            spin1.grid_forget()
+            radioAnswer.set("")
+            info1.set(f"Welke smaak wilt u voor {soort} {aantalLoops+1}?")
+            if aantalLoops == 0:
+                radio1.configure(text="Aardbei", value="A")
+                radio2.configure(text="Chocolade", value="C")
+                radio3.configure(text="Vanille", value="V")
+                radio1.grid()
+                radio2.grid()
+                radio3.grid()
+            startButton.wait_variable(radioAnswer)
+            checkSmaak()
+        spin2.grid_forget()
+        startButton.grid_forget()
+        if soortPersoon == "P":
+            topping()
+        try:
+            radio1.grid_forget()
+            radio2.grid_forget()
+            radio3.grid_forget()
+            radio4.grid_forget()
+            infoLabel1.grid_forget()
+        except:
+            pass
+        if soortPersoon == "Z":
+            bonZakelijk()
+        else:
+            bonParticulier()
+        if soortPersoon == "P":
+            nogEenKeer = ttk.Button(window, text="opnieuw bestellen", command=windowAanmaken)
+            nogEenKeer.grid()
+        bestelButton = ttk.Button(window, text="Bestellen", command=destroy)
+        bestelButton.grid()
 def aantal():
+    global soortPersoon
     radio1.grid_forget()
     radio2.grid_forget()
     if radioAnswer.get() == "P":
+        soortPersoon = "P"
         info1.set("Hoeveel bolletjes wilt u bestellen?")
         spin1.grid()
         bolletjesBesteld()
     elif radioAnswer.get() == "Z":
+        soortPersoon = "Z"
         info1.set("Hoeveel liter wilt u bestellen?")
         spin2.grid()
-        litersBesteld()
-        
+        litersOfBolletjesBesteld("liter")
     else:
         messagebox.showinfo("INFO", "Kies a.u.b. een optie.")
 
@@ -54,22 +182,30 @@ def ParOfZakCheck():
     radio3.grid_forget()
     startButton.config(text="Volgende",command=aantal)
     startButton.grid(column=0, row=4)
-info1 = tkinter.StringVar(value="Welkom bij Papi Gelato. Druk op de knop om uw bestelling te kiezen.")
-infoLabel1 = tkinter.Label(window, textvariable=info1)
-infoLabel1.grid()
-radioAnswer = tkinter.StringVar()
-startButton = ttk.Button(window, text="Start", command=ParOfZakCheck)
-startButton.grid()
-answerSpin1 = tkinter.IntVar()
-spin1 = ttk.Spinbox(window, from_=0, to=8, textvariable=answerSpin1)
-spin1.grid()
-spin1.grid_forget()
-answerSpin2 = tkinter.IntVar()
-spin2 = ttk.Spinbox(window, from_=0, to=float("inf"), textvariable=answerSpin2)
-spin2.grid_forget()
-window.mainloop()
 
+def windowAanmaken():
+    global info1, radioAnswer, startButton, spin1, spin2, infoLabel1, answerSpin1, answerSpin2, window
+    try:
+        window.destroy()
+    except:
+        pass
+    window = tk.Tk()
+    info1 = tkinter.StringVar(value="Welkom bij Papi Gelato. Druk op de knop om uw epische bestelling te kiezen.")
+    infoLabel1 = tkinter.Label(window, textvariable=info1)
+    infoLabel1.grid()
+    radioAnswer = tkinter.StringVar()
+    startButton = ttk.Button(window, text="Start", command=ParOfZakCheck)
+    startButton.grid()
+    answerSpin1 = tkinter.IntVar()
+    spin1 = ttk.Spinbox(window, from_=0, to=8, textvariable=answerSpin1)
+    spin1.grid()
+    spin1.grid_forget()
+    answerSpin2 = tkinter.IntVar()
+    spin2 = ttk.Spinbox(window, from_=0, to=float("inf"), textvariable=answerSpin2)
+    spin2.grid_forget()
+    window.mainloop()
 
+windowAanmaken()
 ################################################################# NORMALE CODE #################################################################
 # e = 0
 # i = 0
